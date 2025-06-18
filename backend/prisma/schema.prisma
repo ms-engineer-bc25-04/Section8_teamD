@@ -18,15 +18,19 @@ model User {
   name                   String          // 表示名
   accountNumber          String          // 投票用口座番号
   beneficiaryBranchCode  Int             // 店番号
+  access_token           String          // この人専用のAPIトークン（銀行API用）
 }
 
 model Project {
   id                     String   @id    // 数値や文字：プロジェクトID
   name                   String          // プロジェクト名
+  name_kana              String
   goal_amount            Int             // 目標金額
   deadline               DateTime        // 投票締切日
   current_amount         Int             // 現在の投票合計
   accountNumber          String          // プロジェクト口座番号
   description            String          // プロジェクトの説明
+  bank_code              Int             // 銀行コード
   beneficiaryBranchCode  Int             // 店番号
+  access_token           String          // (将来用)プロジェクト専用APIトークン
 }
