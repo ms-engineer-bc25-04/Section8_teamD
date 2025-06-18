@@ -27,7 +27,6 @@ model Project {
   deadline               DateTime        // 投票締切日
   current_amount         Int             // 現在の投票合計
   accountNumber          String          // プロジェクト口座番号
-  status                 String          // 募集中/成立/終了
   description            String          // プロジェクトの説明
   beneficiaryBranchCode  Int             // 店番号
 }
