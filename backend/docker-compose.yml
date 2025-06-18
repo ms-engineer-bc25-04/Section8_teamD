@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  db:
+    image: mysql:5.7
+    container_name: mysql57-minmachi
+    environment:
+      MYSQL_ROOT_PASSWORD: pass1234
+      MYSQL_DATABASE: minmachi_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    restart: always
+
+volumes:
+  db-data:
