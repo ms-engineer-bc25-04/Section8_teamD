@@ -47,23 +47,30 @@ app.get('/api/projects', async (req, res) => {
 
 // ユーザー残高取得API（認証付き：token必須）
 app.get('/api/balance', authenticateFirebaseToken, async (req, res) => {
-  // トークン認証が通れば req.user.uid が使える
+  // Firebase認証を通っていればreq.user.uidが存在
   const userId = req.user.uid;
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return res.status(404).json({ error: 'User not found' });
 
-  try {
+   try {
     // Sunabar APIから口座残高取得
-    const result = await axios.get(
-      'https://api.sunabar.gmo-aozora.com/personal/v1/transfer/request',
-      { headers: { 'X-API-KEY': process.env.user.access_token } }
-    );
-    res.json({ accountNumber: user.accountNumber, balance: result.data.balance });
+    const apiUrl = `https://api.sunabar.gmo-aozora.com/personal/v1/accounts/balances?accountId=${user.accountNumber}`;
+    const result = await axios.get(apiUrl, {
+      headers: {
+        'x-access-token': user.access_token,
+        'Accept': 'application/json;charset=UTF-8',
+        'Content-Type': 'application/json;charset=UTF-8'
+      }
+    });
+    // 取得したbalances配列をそのまま返す
+    res.json({
+      accountNumber: user.accountNumber,
+      balances: result.data.balances
+    });
   } catch (err) {
     res.status(500).json({ error: 'Bank API error', detail: err.message });
   }
 });
-
 
 // --- 投票APIはvoteRouterに完全に任せる！ ---
 // vote.ts内で「認証ミドルウェア・送金・金額加算」など全部実装されていればOK
