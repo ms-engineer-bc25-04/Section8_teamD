@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { mockUsers } from "./mocks/user";
 
 function LoginPage() {
   const router = useRouter();
@@ -8,20 +9,16 @@ function LoginPage() {
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    //仮のチェック：emailとpasswordが空でない場合のみログイン成功とする
-    if (email && password) {
-      const user = {
-        id: "user_001",
-        name: "田中太郎",
-        balance: 100000,
-        email: "taro@example.com",
-        password: 12356,
-      };
+    const user = mockUsers.find(
+      (u) => u.email === email && u.password === password
+    );
+    if (user) {
       localStorage.setItem("user", JSON.stringify(user));
       router.push("/home");
+    } else {
+      alert("メールアドレスまたはパスワードが違います");
     }
   };
-
   return (
     <div className="min-h-screen flex justify-center items-center bg-blue-50">
       <div className="bg-white p-8 rounded shadow-md w-96">
