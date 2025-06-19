@@ -2,21 +2,31 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { mockUsers } from "./mocks/user";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(""); //エラー表示用
 
-  const handleLogin = () => {
-    const user = mockUsers.find(
-      (u) => u.email === email && u.password === password
-    );
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
+  const handleLogin = async () => {
+    try {
+      //Firebaseでログイン
+      await signInWithEmailAndPassword(auth, email, password);
+
+      //成功したらホーム画面へ
       router.push("/home");
-    } else {
-      alert("メールアドレスまたはパスワードが違います");
+    } catch (err: any) {
+      //エラーを分かりやすく表示
+      if (err.code === "auth/user-not-found") {
+        setError("ユーザーが見つかりません");
+      } else if (err.code === "auth/wrong-password") {
+        setError("パスワードが間違っています");
+      } else {
+        setError("ログインに失敗しました:" + err.message);
+      }
     }
   };
   return (
