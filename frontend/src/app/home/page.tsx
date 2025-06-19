@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { mockProjects } from "../mocks/projects";
+import { auth } from "@/lib/firebase";
 
 type Project = {
   id: string;
@@ -16,19 +17,35 @@ type Project = {
 
 function HomePage() {
   const router = useRouter();
-  const [user, setUser] = useState<{ name: string; balance: number } | null>(
-    null
-  );
+  //firebaseのuser型をそのままつかう
+  const [user, setUser] = useState<{
+    email: string;
+    displayName: string | null;
+    balance: number;
+  } | null>(null);
   const [projects, setProjects] = useState(mockProjects);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      setUser(JSON.parse(userData));
-    } else {
-      router.push("/");
-    }
-  }, []);
+    //Firebaseの認証状態を監視
+    const unsubscribe = auth.onAuthStateChanged((fbUser) => {
+      if (fbUser) {
+        //仮に「残高10000円、displayNameなし」の例
+        setUser({
+          email: fbUser.email ?? "",
+          displayName: fbUser.displayName,
+          balance: 10000, //テスト用ダミー値
+        });
+      } else {
+        //ログインしていない場合はログイン画面に戻す
+        router.push("/");
+      }
+      setLoading(false);
+    });
+
+    //クリーンアップ
+    return () => unsubscribe();
+  }, [router]);
 
   //ステータスを判定する関数
   const getStatus = (project: Project): string => {
@@ -38,10 +55,10 @@ function HomePage() {
     if (today > deadline) return "終了";
     return "募集中";
   };
+  if (loading) return <div>読み込み中...</div>;
 
   return (
     <div className="min-h-screen bg-blue-50 p-4 relative">
-      {/* ←この位置に入れるとOK */}
       <div className="absolute top-4 right-4 bg-white border px-4 py-2 rounded shadow text-sm">
         {user ? (
           <p>
@@ -56,7 +73,7 @@ function HomePage() {
       </div>
 
       <h1 className="text-2xl font-bold text-center mb-6">
-        ようこそ、{user?.name}さん！
+        ようこそ、{user?.displayName || user?.email}さん！
       </h1>
       <div className="grid gap-4 max-w-3xl mx-auto">
         {projects.map((project) => {
