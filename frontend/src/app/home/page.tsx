@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { mockProjects } from "../mocks/projects";
 
 type Project = {
   id: string;
@@ -13,39 +14,12 @@ type Project = {
   //status: string; これは関数で判定できそう
 };
 
-//プロジェクトの仮データ
-const projectData: Project[] = [
-  {
-    id: "p1",
-    name: "市民プールの修繕",
-    description: "古くなった市民プールをきれいにします",
-    goal_amount: 300000,
-    current_amount: 120000,
-    deadline: "2025-06-30",
-  },
-  {
-    id: "p2",
-    name: "駅前の花壇整備",
-    description: "駅前にお花をたくさん植えます",
-    goal_amount: 200000,
-    current_amount: 200000,
-    deadline: "2025-06-10",
-  },
-  {
-    id: "p3",
-    name: "公園の遊具追加",
-    description: "子どもたちのために滑り台などの遊具を追加します",
-    goal_amount: 250000,
-    current_amount: 80000,
-    deadline: "2025-05-31",
-  },
-];
-
 function HomePage() {
   const router = useRouter();
   const [user, setUser] = useState<{ name: string; balance: number } | null>(
     null
   );
+  const [projects, setProjects] = useState(mockProjects);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -85,7 +59,7 @@ function HomePage() {
         ようこそ、{user?.name}さん！
       </h1>
       <div className="grid gap-4 max-w-3xl mx-auto">
-        {projectData.map((project) => {
+        {projects.map((project) => {
           const status = getStatus(project);
           return (
             <div key={project.id} className="bg-white p-4 rounded shadow">
