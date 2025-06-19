@@ -3,6 +3,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const { PrismaClient } = require('@prisma/client');
 const axios = require('axios');
+const { authenticateFirebaseToken } = require('../middleware/authenticateFirebaseToken');
+const voteRouter = require('../routes/vote');
 
 dotenv.config();
 const app = express();
@@ -43,11 +45,10 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
-// ユーザー残高取得API（Sunabar本番連携）
-app.get('/api/balance', async (req, res) => {
-  const userId = req.query.user_id;
-  if (!userId) return res.status(400).json({ error: 'user_id is required' });
-
+// ユーザー残高取得API（認証付き：token必須）
+app.get('/api/balance', authenticateFirebaseToken, async (req, res) => {
+  // トークン認証が通れば req.user.uid が使える
+  const userId = req.user.uid;
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return res.status(404).json({ error: 'User not found' });
 
@@ -63,42 +64,9 @@ app.get('/api/balance', async (req, res) => {
   }
 });
 
-// 投票API（ユーザー→プロジェクトへ送金＆current_amount加算）
-app.post('/api/vote', async (req, res) => {
-  const { userId, projectId, amount } = req.body;
-  if (!userId || !projectId || !amount)
-    return res.status(400).json({ error: 'userId, projectId, amountは必須' });
-
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  const project = await prisma.project.findUnique({ where: { id: projectId } });
-  if (!user || !project)
-    return res.status(404).json({ error: 'User or Project not found' });
-
-  const transferData = {
-    debitAccountId: user.accountNumber,
-    creditAccountId: project.accountNumber, // ←ここはプロジェクトテーブルの口座番号
-    amount: amount
-  };
-
-  try {
-    // Sunabar APIで送金実行
-    const result = await axios.post(
-      'https://sandbox.sunabar.gmo-aozora.com/api/v1/transfer',
-      transferData,
-      { headers: { 'X-API-KEY': process.env.SUNABAR_API_KEY } }
-    );
-
-    // プロジェクトの現在金額を加算
-    await prisma.project.update({
-      where: { id: projectId },
-      data: { current_amount: { increment: amount } }
-    });
-
-    res.json({ success: true, data: result.data });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
+// --- 投票APIはvoteRouterに完全に任せる！ ---
+// vote.ts内で「認証ミドルウェア・送金・金額加算」など全部実装されていればOK
+app.use('/api/vote', voteRouter);
 
 // サーバー起動
 const PORT = process.env.PORT || 3001;
