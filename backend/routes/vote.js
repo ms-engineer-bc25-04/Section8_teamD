@@ -1,27 +1,25 @@
-import express from "express";
-import { authenticateFirebaseToken } from "../middleware/authenticateFirebaseToken";
-import { PrismaClient } from "@prisma/client";
-import axios from "axios";
+const express = require("express");
+const { authenticateFirebaseToken } = require("../middleware/authenticateFirebaseToken");
+const { PrismaClient } = require("@prisma/client");
+const axios = require("axios");
 
 const router = express.Router();
-const prisma = new PrismaClient(); // ここでインスタンス化
+const prisma = new PrismaClient();
 
 router.post("/", authenticateFirebaseToken, async (req, res) => {
-  // @ts-ignore
-  const userId = req.user.uid; //userが型エラーを起こしてしまうため、一行前で型無視してます
+  const userId = req.user.uid;
   const { projectId, amount } = req.body;
 
-  // prismaやaxiosを直接使う
   const user = await prisma.user.findUnique({ where: { id: userId } });
   const project = await prisma.project.findUnique({ where: { id: projectId } });
 
   if (!user || !project) return res.status(404).json({ error: "User or Project not found" });
 
   const transferData = {
-    debitAccountId: user!.accountNumber,
-    creditAccountId: project!.accountNumber,
+    debitAccountId: user.accountNumber,
+    creditAccountId: project.accountNumber,
     amount: amount,
-};
+  };
 
   try {
     const result = await axios.post(
@@ -36,9 +34,9 @@ router.post("/", authenticateFirebaseToken, async (req, res) => {
     });
 
     res.json({ success: true, data: result.data });
-  } catch (err: any) {
+  } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-export default router;
+module.exports = router;
