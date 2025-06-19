@@ -2,63 +2,75 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { mockProjects } from "../mocks/projects";
 import { auth } from "@/lib/firebase";
 
+// DBから取得するデータ型
 type Project = {
   id: string;
-  name: string; //プロジェクトの名前
-  description: string; //プロジェクトの簡単な説明
-  goal_amount: number; //目標金額
-  current_amount: number; //現在の到達金額
-  deadline: string; //投票期限
-  //status: string; これは関数で判定できそう
+  name: string;
+  description: string;
+  goal_amount: number;
+  current_amount: number;
+  deadline: string; // ISO形式
+  status?: string;  // サーバー側で状態判定済みなら含まれる
 };
 
 function HomePage() {
   const router = useRouter();
-  //firebaseのuser型をそのままつかう
   const [user, setUser] = useState<{
     email: string;
     displayName: string | null;
     balance: number;
   } | null>(null);
-  const [projects, setProjects] = useState(mockProjects);
+
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    //Firebaseの認証状態を監視
+    // Firebaseの認証状態を監視
     const unsubscribe = auth.onAuthStateChanged((fbUser) => {
       if (fbUser) {
-        //仮に「残高10000円、displayNameなし」の例
         setUser({
           email: fbUser.email ?? "",
           displayName: fbUser.displayName,
-          balance: 10000, //テスト用ダミー値
+          balance: 40000, // 仮データ（あとでAPIから取得に直してもOK）
         });
       } else {
-        //ログインしていない場合はログイン画面に戻す
         router.push("/");
       }
-      setLoading(false);
     });
 
-    //クリーンアップ
+    // プロジェクト一覧APIをfetch
+    fetch("http://localhost:3001/api/projects")
+      .then((res) => {
+        if (!res.ok) throw new Error("APIエラー");
+        return res.json();
+      })
+      .then((data) => setProjects(data))
+      .catch((err) => {
+        alert("プロジェクト一覧の取得に失敗しました");
+        setProjects([]);
+      })
+      .finally(() => setLoading(false));
+
     return () => unsubscribe();
   }, [router]);
 
-  //ステータスを判定する関数
+  // ステータスを判定する関数（サーバー側でstatusを付与していればそれを使う）
   const getStatus = (project: Project): string => {
+    if (project.status) return project.status;
     const today = new Date();
     const deadline = new Date(project.deadline);
     if (project.current_amount >= project.goal_amount) return "成立";
     if (today > deadline) return "終了";
     return "募集中";
   };
+
   if (loading) return <div>読み込み中...</div>;
 
   return (
     <div className="min-h-screen bg-blue-50 p-4 relative">
+      {/* 残高表示エリア */}
       <div className="absolute top-4 right-4 bg-white border px-4 py-2 rounded shadow text-sm">
         {user ? (
           <p>
@@ -76,6 +88,9 @@ function HomePage() {
         ようこそ、{user?.displayName || user?.email}さん！
       </h1>
       <div className="grid gap-4 max-w-3xl mx-auto">
+        {projects.length === 0 && (
+          <div className="text-center text-gray-500">プロジェクトがありません</div>
+        )}
         {projects.map((project) => {
           const status = getStatus(project);
           return (
@@ -106,4 +121,5 @@ function HomePage() {
     </div>
   );
 }
+
 export default HomePage;

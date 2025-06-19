@@ -1,6 +1,6 @@
-import { admin } from "../src/lib/firebase-admin";
+const { admin } = require("../src/lib/firebase-admin");
 
-export async function authenticateFirebaseToken(req, res, next) {
+async function authenticateFirebaseToken(req, res, next) {
   const idToken = req.headers.authorization?.split("Bearer ")[1];
   if (!idToken) {
     return res.status(401).json({ error: "No token provided" });
@@ -13,3 +13,5 @@ export async function authenticateFirebaseToken(req, res, next) {
     return res.status(401).json({ error: "Invalid token" });
   }
 }
+
+module.exports = { authenticateFirebaseToken };
