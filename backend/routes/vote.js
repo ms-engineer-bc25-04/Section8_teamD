@@ -23,9 +23,15 @@ router.post("/", authenticateFirebaseToken, async (req, res) => {
 
   try {
     const result = await axios.post(
-      "https://sandbox.sunabar.gmo-aozora.com/api/v1/transfer",
+      "https://api.sunabar.gmo-aozora.com/personal/v1/transfer/request",
       transferData,
-      { headers: { "X-API-KEY": process.env.SUNABAR_API_KEY } }
+      {
+        headers: {
+          "x-access-token": user.access_token,
+          "Accept": "application/json;charset=UTF-8",
+          "Content-Type": "application/json;charset=UTF-8"
+        },
+      }
     );
 
     await prisma.project.update({
