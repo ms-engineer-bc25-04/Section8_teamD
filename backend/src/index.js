@@ -55,8 +55,8 @@ app.get('/api/balance', authenticateFirebaseToken, async (req, res) => {
   try {
     // Sunabar APIから口座残高取得
     const result = await axios.get(
-      `https://sandbox.sunabar.gmo-aozora.com/api/v1/accounts/${user.accountNumber}/balance`,
-      { headers: { 'X-API-KEY': process.env.SUNABAR_API_KEY } }
+      'https://api.sunabar.gmo-aozora.com/personal/v1/transfer/request',
+      { headers: { 'X-API-KEY': process.env.user.access_token } }
     );
     res.json({ accountNumber: user.accountNumber, balance: result.data.balance });
   } catch (err) {
@@ -64,9 +64,11 @@ app.get('/api/balance', authenticateFirebaseToken, async (req, res) => {
   }
 });
 
+
 // --- 投票APIはvoteRouterに完全に任せる！ ---
 // vote.ts内で「認証ミドルウェア・送金・金額加算」など全部実装されていればOK
 app.use('/api/vote', voteRouter);
+
 
 // サーバー起動
 const PORT = process.env.PORT || 3001;
