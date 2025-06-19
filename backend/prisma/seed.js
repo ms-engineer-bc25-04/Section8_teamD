@@ -9,21 +9,21 @@ async function main() {
       id: process.env.USER_001_ID,
       name: process.env.USER_001_NAME,
       accountNumber: process.env.USER_001_ACCOUNTNUMBER,
-      beneficiaryBranchCode: process.env.USER_001_BENEFICIARYBRANCHCODE,
+      beneficiaryBranchCode: Number(process.env.USER_001_BENEFICIARYBRANCHCODE),
       access_token: process.env.USER_001_ACCESS_TOKEN
       },
       {
         id: process.env.USER_002_ID,
         name: process.env.USER_002_NAME,
         accountNumber: process.env.USER_002_ACCOUNTNUMBER,
-        beneficiaryBranchCode: process.env.USER_002_BENEFICIARYBRANCHCODE,
+        beneficiaryBranchCode: Number(process.env.USER_002_BENEFICIARYBRANCHCODE),
         access_token: process.env.USER_002_ACCESS_TOKEN
       },
       {
         id: process.env.USER_003_ID,
         name: process.env.USER_003_NAME,
         accountNumber: process.env.USER_003_ACCOUNTNUMBER,
-        beneficiaryBranchCode: process.env.USER_003_BENEFICIARYBRANCHCODE,
+        beneficiaryBranchCode: Number(process.env.USER_003_BENEFICIARYBRANCHCODE),
         access_token: process.env.USER_003_ACCESS_TOKEN
       }
     ]
@@ -36,12 +36,12 @@ async function main() {
         id: process.env.PROJECT_001_ID,
         name: process.env.PROJECT_001_NAME,
         name_kana: process.env.PROJECT_001_NAME_KANA,
-        goal_amount: process.env.PROJECT_001_GOAL_AMOUNT,
-        current_amount: process.env.PROJECT_001_CURRENT_AMOUNT,
-        deadline: process.env.PROJECT_001_DEADLINE,
+        goal_amount: Number(process.env.PROJECT_001_GOAL_AMOUNT),
+        current_amount: Number(process.env.PROJECT_001_CURRENT_AMOUNT),
+        deadline: new Date(process.env.PROJECT_001_DEADLINE),
         description: process.env.PROJECT_001_DESCRIPTION,
-        beneficiaryBranchCode: process.env.PROJECT_001_BENEFICIARYBRANCHCODE,
-        bank_code: process.env.PROJECT_001_BANK_CODE,
+        beneficiaryBranchCode: Number(process.env.PROJECT_001_BENEFICIARYBRANCHCODE),
+        bank_code: Number(process.env.PROJECT_001_BANK_CODE),
         accountNumber: process.env.PROJECT_001_ACCOUNTNUMBER,
         access_token: process.env.PROJECT_001_ACCESS_TOKEN
       },
@@ -49,12 +49,12 @@ async function main() {
         id: process.env.PROJECT_002_ID,
         name: process.env.PROJECT_002_NAME,
         name_kana: process.env.PROJECT_002_NAME_KANA,
-        goal_amount: process.env.PROJECT_002_GOAL_AMOUNT,
-        current_amount: process.env.PROJECT_002_CURRENT_AMOUNT,
-        deadline: process.env.PROJECT_002_DEADLINE,
+        goal_amount: Number(process.env.PROJECT_002_GOAL_AMOUNT),
+        current_amount: Number(process.env.PROJECT_002_CURRENT_AMOUNT),
+        deadline: new Date(process.env.PROJECT_002_DEADLINE),
         description: process.env.PROJECT_002_DESCRIPTION,
-        beneficiaryBranchCode: process.env.PROJECT_002_BENEFICIARYBRANCHCODE,
-        bank_code: process.env.PROJECT_002_BANK_CODE,
+        beneficiaryBranchCode: Number(process.env.PROJECT_002_BENEFICIARYBRANCHCODE),
+        bank_code: Number(process.env.PROJECT_002_BANK_CODE),
         accountNumber: process.env.PROJECT_002_ACCOUNTNUMBER,
         access_token: process.env.PROJECT_002_ACCESS_TOKEN
       },
@@ -62,12 +62,12 @@ async function main() {
         id: process.env.PROJECT_003_ID,
         name: process.env.PROJECT_003_NAME,
         name_kana: process.env.PROJECT_003_NAME_KANA,
-        goal_amount: process.env.PROJECT_003_GOAL_AMOUNT,
-        current_amount: process.env.PROJECT_003_CURRENT_AMOUNT,
-        deadline: process.env.PROJECT_003_DEADLINE,
+        goal_amount: Number(process.env.PROJECT_003_GOAL_AMOUNT),
+        current_amount: Number(process.env.PROJECT_003_CURRENT_AMOUNT),
+        deadline: new Date(process.env.PROJECT_003_DEADLINE),
         description: process.env.PROJECT_003_DESCRIPTION,
-        beneficiaryBranchCode: process.env.PROJECT_003_BENEFICIARYBRANCHCODE,
-        bank_code: process.env.PROJECT_003_BANK_CODE,
+        beneficiaryBranchCode: Number(process.env.PROJECT_003_BENEFICIARYBRANCHCODE),
+        bank_code: Number(process.env.PROJECT_003_BANK_CODE),
         accountNumber: process.env.PROJECT_003_ACCOUNTNUMBER,
         access_token: process.env.PROJECT_003_ACCESS_TOKEN
       }
