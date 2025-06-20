@@ -49,8 +49,13 @@ app.get('/api/projects', async (req, res) => {
 app.get('/api/balance', authenticateFirebaseToken, async (req, res) => {
   // Firebase認証を通っていればreq.user.uidが存在
   const userId = req.user.uid;
+  console.log("🔥 バックエンドで受け取ったFirebase UID:", userId);
   const user = await prisma.user.findUnique({ where: { id: userId } });
+  console.log("🧾 対象ユーザー:", user);
   if (!user) return res.status(404).json({ error: 'User not found' });
+
+  console.log("🔥 user.accountNumber:", user.accountNumber);
+  console.log("🔐 user.access_token:", user.access_token);
 
    try {
     // Sunabar APIから口座残高取得
@@ -62,10 +67,11 @@ app.get('/api/balance', authenticateFirebaseToken, async (req, res) => {
         'Content-Type': 'application/json;charset=UTF-8'
       }
     });
+    console.log("balances from bank API:", result.data.balances); // ←★ここ！
     // 取得したbalances配列をそのまま返す
     res.json({
       accountNumber: user.accountNumber,
-      balances: result.data.balances
+      balance: result.data.balances?.[0]?.balance ?? 0
     });
   } catch (err) {
     res.status(500).json({ error: 'Bank API error', detail: err.message });
