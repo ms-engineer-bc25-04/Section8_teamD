@@ -18,24 +18,43 @@ function InvestPage() {
   const { projectId } = useParams();
   const router = useRouter();
 
-  const [user, setUser] = useState<{ email: string; displayName: string | null; balance: number } | null>(null);
+  const [user, setUser] = useState<{
+    email: string;
+    displayName: string | null;
+    balance: number;
+  } | null>(null);
+
   const [project, setProject] = useState<Project | null>(null);
   const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Firebase認証＋ユーザー情報取得
+  // Firebase認証＋ユーザー情報取得（API経由で残高も取得）
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (fbUser) => {
       if (!fbUser) {
         router.push("/");
         return;
       }
-      // 残高もAPIから取る場合はここでfetch
-      setUser({
-        email: fbUser.email ?? "",
-        displayName: fbUser.displayName,
-        balance: 40000, // 仮：あとでAPIから取得する形に
-      });
+
+      try {
+        const token = await fbUser.getIdToken();
+        const balanceRes = await fetch("http://localhost:3001/api/balance", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const balanceData = await balanceRes.json();
+
+        setUser({
+          email: fbUser.email ?? "",
+          displayName: fbUser.displayName,
+          balance: balanceData.balance ?? 0,
+        });
+      } catch (err) {
+        alert("ユーザー情報の取得に失敗しました");
+        console.error(err);
+      }
     });
 
     return () => unsubscribe();
@@ -63,11 +82,8 @@ function InvestPage() {
       return;
     }
 
-    // 投票APIを叩く（要サーバーAPI実装）
     try {
-      // Firebaseのトークン取得
       const token = await auth.currentUser?.getIdToken();
-      // 投票APIコール（認証付き）
       const res = await fetch("http://localhost:3001/api/vote", {
         method: "POST",
         headers: {
@@ -79,6 +95,7 @@ function InvestPage() {
           amount: amount,
         }),
       });
+
       const result = await res.json();
       if (!res.ok) throw new Error(result.message || "送金失敗");
 
@@ -96,15 +113,13 @@ function InvestPage() {
           <h2 className="text-lg font-bold mb-2">{project.name}</h2>
           <p className="text-gray-600 mb-4">{project.description}</p>
           <p className="mb-1">
-            目標金額：
-            <span className="font-bold">{project.goal_amount.toLocaleString()}円</span>
+            目標金額：<span className="font-bold">{project.goal_amount.toLocaleString()}円</span>
           </p>
           <p className="mb-1">
-            現在の達成額
-            <span className="text-green-600 font-bold">{project.current_amount.toLocaleString()}円</span>
+            現在の達成額：<span className="text-green-600 font-bold">{project.current_amount.toLocaleString()}円</span>
           </p>
           <p>
-            残り必要額:
+            残り必要額：
             <span className="text-blue-600 font-bold">
               {(project.goal_amount - project.current_amount).toLocaleString()}円
             </span>

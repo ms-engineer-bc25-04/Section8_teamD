@@ -59,10 +59,10 @@ app.get('/api/balance', authenticateFirebaseToken, async (req, res) => {
 
    try {
     // Sunabar APIから口座残高取得
-    const apiUrl = `https://api.sunabar.gmo-aozora.com/personal/v1/accounts/balances?accountId=${user.accountNumber}`;
-    const result = await axios.get(apiUrl, {
+    const apiUrl = "https://api.sunabar.gmo-aozora.com/personal/v1/accounts/balances";
+    const result = await axios.get("https://api.sunabar.gmo-aozora.com/personal/v1/accounts/balances", {
       headers: {
-        'x-access-token': user.access_token,
+        'x-access-token': "OTU5ZGIxYTcxYjBhNjc0ZWE0MzgxMzEw",
         'Accept': 'application/json;charset=UTF-8',
         'Content-Type': 'application/json;charset=UTF-8'
       }
@@ -70,7 +70,6 @@ app.get('/api/balance', authenticateFirebaseToken, async (req, res) => {
     console.log("balances from bank API:", result.data.balances); // ←★ここ！
     // 取得したbalances配列をそのまま返す
     res.json({
-      accountNumber: user.accountNumber,
       balance: result.data.balances?.[0]?.balance ?? 0
     });
   } catch (err) {
