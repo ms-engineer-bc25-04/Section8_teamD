@@ -1,8 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { mockUsers } from "./mocks/user";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 function LoginPage() {
@@ -12,23 +11,33 @@ function LoginPage() {
   const [error, setError] = useState(""); //エラー表示用
 
   const handleLogin = async () => {
-    try {
-      //Firebaseでログイン
-      await signInWithEmailAndPassword(auth, email, password);
-
-      //成功したらホーム画面へ
-      router.push("/home");
-    } catch (err: any) {
-      //エラーを分かりやすく表示
-      if (err.code === "auth/user-not-found") {
-        setError("ユーザーが見つかりません");
-      } else if (err.code === "auth/wrong-password") {
-        setError("パスワードが間違っています");
-      } else {
-        setError("ログインに失敗しました:" + err.message);
-      }
+  try {
+    // もしすでにログイン済みユーザーがいたら signOut しておく
+    if (auth.currentUser) {
+      await signOut(auth);
     }
-  };
+
+    await signInWithEmailAndPassword(auth, email, password);
+    
+    // 🔥 認証状態が反映されてから遷移
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          router.push("/home");
+        }
+      });
+
+
+  } catch (err: any) {
+    if (err.code === "auth/user-not-found") {
+      setError("ユーザーが見つかりません");
+    } else if (err.code === "auth/wrong-password") {
+      setError("パスワードが間違っています");
+    } else {
+      setError("ログインに失敗しました: " + err.message);
+    }
+  }
+};
+
   return (
     <div className="min-h-screen flex justify-center items-center bg-blue-50">
       <div className="bg-white p-8 rounded shadow-md w-96">
@@ -36,7 +45,7 @@ function LoginPage() {
           みんまちプロジェクト
         </h1>
         <p className="text-center mb-4 text-sm text-gray-600">
-          興味があるプロジェクトに投資しよう💶
+          興味があるプロジェクトに投票しよう💶
         </p>
 
         <input

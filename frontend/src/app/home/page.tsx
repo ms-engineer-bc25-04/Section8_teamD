@@ -27,13 +27,33 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Firebaseの認証状態を監視
-    const unsubscribe = auth.onAuthStateChanged((fbUser) => {
+    // Firebase認証状態＋残高APIをfetch
+    const unsubscribe = auth.onAuthStateChanged(async (fbUser) => {
       if (fbUser) {
+        // 残高APIを呼ぶ
+        
+        console.log("✅ ログイン中の Firebase UID:", fbUser.uid);
+
+        const token = await fbUser.getIdToken();
+        
+        console.log("🔥 getIdToken:", token); // ←★追加
+
+        const balanceRes = await fetch("http://localhost:3001/api/balance", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        
+        console.log("🌀 balanceRes:", balanceRes.status); // ←★追加
+
+        const balanceData = await balanceRes.json();
+        
+        console.log("💰 balanceData:", balanceData); // ←★追加
+
         setUser({
           email: fbUser.email ?? "",
           displayName: fbUser.displayName,
-          balance: 40000, // 仮データ（あとでAPIから取得に直してもOK）
+          balance: balanceData.balance ?? 0,
         });
       } else {
         router.push("/");

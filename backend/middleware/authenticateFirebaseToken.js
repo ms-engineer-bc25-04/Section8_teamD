@@ -7,6 +7,7 @@ async function authenticateFirebaseToken(req, res, next) {
   }
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
+    console.log("🔥 authenticated Firebase UID:", decodedToken.uid); // ← 追加！
     req.user = decodedToken;
     next();
   } catch (e) {
