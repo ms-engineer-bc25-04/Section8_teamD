@@ -1,4 +1,4 @@
-# Fintech LINE Bot アプリ
+
 
 GMOあおぞら銀行API・AWS（Lambda, DynamoDB）・LINE Messaging API を活用して開発された、Fintech体験型のLINE Botアプリです。ユーザーはLINE上から銀行APIにアクセスし、残高照会や取引履歴の取得などの操作が可能です。
 
