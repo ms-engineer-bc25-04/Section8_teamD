@@ -5,6 +5,8 @@
 このアプリは「地域のまちづくりプロジェクト」を対象とした投票型クラウドファンディングAPIです。  
 金融API（GMOあおぞら銀行 OpenAPI）との連携により、仮想的な送金・残高取得など**実務に近いエンタープライズAPI設計／開発経験**を積むために個人実装しました。
 
+## 技術スタック
+- **フロントエンド**: React + Next.js + Tailwind CSS + TypeScript
 - **ユーザー認証**: Firebase Authentication
 - **データ永続化**: MySQL + Prisma ORM
 - **API設計**: Node.js（Express）
@@ -13,7 +15,7 @@
 
 ---
 
-## 技術スタック・工夫ポイント
+## 工夫ポイント
 
 - **TypeScript/JavaScriptベースのバックエンド開発**
 - **Prisma ORM** による型安全なDBアクセス・スキーマ管理
